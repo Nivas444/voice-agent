@@ -68,11 +68,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <aside className="hidden lg:flex flex-col w-64 bg-slate-900 text-slate-300 border-r border-slate-800 shrink-0">
         {/* Brand Header */}
         <div className="h-16 flex items-center px-6 border-b border-slate-800 gap-3">
-          <div className="bg-violet-600 p-2 rounded-lg text-white">
-            <Sparkles className="w-5 h-5" />
-          </div>
+          <img src="/sortyx_logo-removebg-preview.png" alt="SortyX Logo" className="w-8 h-8 object-contain" />
           <div>
-            <h1 className="font-bold text-white tracking-wide text-sm">Aura AI Agent</h1>
+            <h1 className="font-bold text-white tracking-wide text-sm">SortyX AI Agent</h1>
             <p className="text-xs text-violet-400 font-medium">Receptionist Platform</p>
           </div>
         </div>
@@ -131,7 +129,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               {clinicSettings?.clinic_name?.[0] || "A"}
             </div>
             <div className="truncate max-w-[120px]">
-              <p className="text-sm font-semibold text-white truncate">{clinicSettings?.clinic_name || "Aura Dental"}</p>
+              <p className="text-sm font-semibold text-white truncate">{clinicSettings?.clinic_name || "ABC Dental Clinic"}</p>
               <p className="text-xs text-slate-400 truncate">Administrator</p>
             </div>
           </div>
@@ -157,10 +155,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <Menu className="w-6 h-6" />
             </button>
             <div className="flex items-center gap-2">
-              <div className="bg-violet-600 p-1.5 rounded-lg text-white">
-                <Sparkles className="w-4 h-4" />
-              </div>
-              <span className="font-bold text-sm text-slate-900">Aura AI</span>
+              <img src="/sortyx_logo-removebg-preview.png" alt="SortyX Logo" className="w-6 h-6 object-contain" />
+              <span className="font-bold text-sm text-slate-900">SortyX AI Agent</span>
             </div>
           </div>
           <div className="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center text-violet-700 font-semibold text-xs">
@@ -186,11 +182,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </button>
 
               <div className="h-16 flex items-center px-6 border-b border-slate-800 gap-3">
-                <div className="bg-violet-600 p-2 rounded-lg text-white">
-                  <Sparkles className="w-5 h-5" />
-                </div>
+                <img src="/sortyx_logo-removebg-preview.png" alt="SortyX Logo" className="w-8 h-8 object-contain" />
                 <div>
-                  <h1 className="font-bold text-white tracking-wide text-sm">Aura AI</h1>
+                  <h1 className="font-bold text-white tracking-wide text-sm">SortyX AI Agent</h1>
                   <p className="text-xs text-violet-400 font-medium">Receptionist</p>
                 </div>
               </div>
@@ -222,7 +216,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     {clinicSettings?.clinic_name?.[0] || "A"}
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-white">{clinicSettings?.clinic_name || "Aura Dental"}</p>
+                    <p className="text-sm font-semibold text-white">{clinicSettings?.clinic_name || "ABC Dental Clinic"}</p>
                     <p className="text-xs text-slate-400">Admin</p>
                   </div>
                 </div>
@@ -243,7 +237,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <h2 className="text-lg font-bold text-slate-900">
               {pathname === "/" ? "Dashboard" : pathname.replace("/", "").charAt(0).toUpperCase() + pathname.replace("/", "").slice(1)}
             </h2>
-            <p className="text-xs text-slate-500 font-medium">Welcome back, {clinicSettings?.clinic_name || "Aura Dental Care"}</p>
+            <p className="text-xs text-slate-500 font-medium">Welcome back, {clinicSettings?.clinic_name || "ABC Dental Clinic"}</p>
           </div>
           <div className="flex items-center gap-4">
             <div className="bg-slate-100 text-slate-600 px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-2">

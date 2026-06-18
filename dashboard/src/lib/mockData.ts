@@ -1,14 +1,14 @@
 import { CallLog, Customer, Appointment, ClinicSettings } from '../types';
 
 export const INITIAL_SETTINGS: ClinicSettings = {
-  clinic_name: "Aura Dental Care",
+  clinic_name: "ABC Dental Clinic",
   address: "102 Health & Science Square, Sector 4, Kolkata",
   phone: "+91 98765 43210",
   open_time: "09:00 AM",
   close_time: "06:00 PM",
   slot_duration: 30,
   buffer_time: 5,
-  greeting_message: "Hello! Thank you for calling Aura Dental Care. I am your AI receptionist. How can I help you book or manage your appointment today?",
+  greeting_message: "Hello! Thank you for calling ABC Dental Clinic. I am your AI receptionist. How can I help you book or manage your appointment today?",
   voice: "en-US-Neural-F-Soft",
   language: "en-US"
 };
@@ -25,7 +25,7 @@ export const MOCK_CALL_LOGS: CallLog[] = [
     outcome: "Booked",
     appointment_created: true,
     transcript: [
-      { speaker: "AI", text: "Hello! Thank you for calling Aura Dental Care. I am your AI receptionist. How can I help you today?" },
+      { speaker: "AI", text: "Hello! Thank you for calling ABC Dental Clinic. I am your AI receptionist. How can I help you today?" },
       { speaker: "Customer", text: "Hi, I have a really bad toothache on my lower right side. I need to see a doctor as soon as possible." },
       { speaker: "AI", text: "I'm sorry to hear you're in pain. Let's get that looked at. I can book you in for a Root Canal consultation. Would tomorrow, 19 June 2026, work for you?" },
       { speaker: "Customer", text: "Yes, tomorrow is good. Do you have anything in the morning?" },
@@ -48,7 +48,7 @@ export const MOCK_CALL_LOGS: CallLog[] = [
     outcome: "Inquiry",
     appointment_created: false,
     transcript: [
-      { speaker: "AI", text: "Hello! Thank you for calling Aura Dental Care. How can I assist you today?" },
+      { speaker: "AI", text: "Hello! Thank you for calling ABC Dental Clinic. How can I assist you today?" },
       { speaker: "Customer", text: "Hi, I wanted to know if you offer laser teeth whitening and how much it costs." },
       { speaker: "AI", text: "Yes, we offer professional laser teeth whitening. The cost ranges between ₹6,000 to ₹10,000 depending on the current staining. Would you like to schedule a consultation?" },
       { speaker: "Customer", text: "I see. I'll need to check my calendar and call back. What are your opening hours?" },
@@ -68,7 +68,7 @@ export const MOCK_CALL_LOGS: CallLog[] = [
     outcome: "Rescheduled",
     appointment_created: true,
     transcript: [
-      { speaker: "AI", text: "Hello! Thank you for calling Aura Dental Care. How can I help you today?" },
+      { speaker: "AI", text: "Hello! Thank you for calling ABC Dental Clinic. How can I help you today?" },
       { speaker: "Customer", text: "Hi, I have an appointment booked for today at 4 PM, but I got stuck at work. Can I move it to Saturday?" },
       { speaker: "AI", text: "Sure, let's look at Saturday, 20 June 2026. What time would you prefer?" },
       { speaker: "Customer", text: "Do you have anything around 11:00 AM?" },
@@ -88,7 +88,7 @@ export const MOCK_CALL_LOGS: CallLog[] = [
     outcome: "No Booking",
     appointment_created: false,
     transcript: [
-      { speaker: "AI", text: "Hello! Thank you for calling Aura Dental Care..." },
+      { speaker: "AI", text: "Hello! Thank you for calling ABC Dental Clinic..." },
       { speaker: "Customer", text: "[Call Ended]" }
     ]
   }

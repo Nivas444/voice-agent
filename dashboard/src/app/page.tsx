@@ -29,11 +29,6 @@ import {
 } from "recharts";
 import { api } from "@/lib/api";
 import { Appointment, CallLog } from "@/types";
-import { 
-  MOCK_APPOINTMENTS_TREND, 
-  MOCK_DAILY_CALLS, 
-  MOCK_SERVICE_DISTRIBUTION 
-} from "@/lib/mockData";
 import Link from "next/link";
 
 export default function DashboardPage() {
@@ -61,7 +56,7 @@ export default function DashboardPage() {
   const totalAppointments = appointments.length;
   
   // Format today's date to match API strings (e.g. 2026-06-18)
-  const todayStr = "2026-06-18"; // Matching simulation local date
+  const todayStr = new Date().toISOString().split('T')[0];
   const todaysAppointmentsList = appointments.filter(
     app => app.appointment_date === todayStr && app.status !== 'cancelled'
   );
@@ -79,36 +74,149 @@ export default function DashboardPage() {
     .sort((a, b) => new Date(a.appointment_date).getTime() - new Date(b.appointment_date).getTime())
     .slice(0, 4);
 
-  // Recent Activity Panel Feed
-  const recentActivities = [
-    {
-      id: "act-1",
-      type: "booking",
-      user: "Aarav Sharma",
-      detail: "booked Root Canal consultation for 19 June 2026 at 10:00 AM",
-      time: "10m ago",
-      icon: UserPlus,
-      color: "bg-emerald-50 text-emerald-600 border-emerald-100"
-    },
-    {
-      id: "act-2",
-      type: "reschedule",
-      user: "Vikram Malhotra",
-      detail: "rescheduled Dental Checkup to 20 June 2026 at 11:00 AM",
-      time: "1h ago",
-      icon: CalendarCheck,
-      color: "bg-violet-50 text-violet-600 border-violet-100"
-    },
-    {
-      id: "act-3",
-      type: "cancellation",
-      user: "Rahul Verma",
-      detail: "cancelled scaling appointment due to travel scheduling conflict",
-      time: "Yesterday",
-      icon: XCircleComponent,
-      color: "bg-rose-50 text-rose-600 border-rose-100"
+  // --- Dynamic Graph & Chart Data Calculations ---
+  
+  // 1. Appointments Trend (Weekly analysis)
+  const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const trendData = daysOfWeek.map(day => ({ name: day, appointments: 0 }));
+
+  appointments.forEach(app => {
+    if (app.status === 'cancelled') return;
+    try {
+      const parts = app.appointment_date.split("-");
+      let d: Date;
+      if (parts[0].length === 4) {
+        d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+      } else {
+        d = new Date(Number(parts[2]), Number(parts[1]) - 1, Number(parts[0]));
+      }
+      const dayIndex = d.getDay();
+      if (!isNaN(dayIndex)) {
+        trendData[dayIndex].appointments += 1;
+      }
+    } catch (e) {
+      // Ignore
     }
+  });
+
+  const appointmentsTrend = [
+    trendData[1], // Mon
+    trendData[2], // Tue
+    trendData[3], // Wed
+    trendData[4], // Thu
+    trendData[5], // Fri
+    trendData[6], // Sat
+    trendData[0]  // Sun
   ];
+
+  // 2. Hourly Call Traffic
+  const callIntervals = [
+    { name: "09:00", calls: 0, startHour: 8, endHour: 10 },
+    { name: "11:00", calls: 0, startHour: 10, endHour: 12 },
+    { name: "13:00", calls: 0, startHour: 12, endHour: 14 },
+    { name: "15:00", calls: 0, startHour: 14, endHour: 16 },
+    { name: "17:00", calls: 0, startHour: 16, endHour: 20 }
+  ];
+
+  callLogs.forEach(call => {
+    try {
+      const timeStr = call.time.toLowerCase();
+      const match = timeStr.match(/(\d+):(\d+)\s*(am|pm)/);
+      if (match) {
+        let hour = Number(match[1]);
+        const isPm = match[3] === "pm";
+        if (isPm && hour !== 12) hour += 12;
+        if (!isPm && hour === 12) hour = 0;
+        
+        for (const interval of callIntervals) {
+          if (hour >= interval.startHour && hour < interval.endHour) {
+            interval.calls += 1;
+            break;
+          }
+        }
+      }
+    } catch (e) {
+      // Ignore
+    }
+  });
+
+  const dailyCalls = callIntervals.map(i => ({ name: i.name, calls: i.calls }));
+
+  // 3. Service Distribution
+  const servicesList = ["Root Canal", "Scaling & Polishing", "Routine Checkup", "Orthodontics"];
+  const serviceColors: Record<string, string> = {
+    "Root Canal": "#8b5cf6",
+    "Scaling & Polishing": "#a78bfa",
+    "Routine Checkup": "#c084fc",
+    "Orthodontics": "#ddd6fe"
+  };
+
+  const serviceCounts: Record<string, number> = {};
+  servicesList.forEach(s => serviceCounts[s] = 0);
+  let totalCountedServices = 0;
+
+  appointments.forEach(app => {
+    if (app.status === 'cancelled') return;
+    const sType = app.service_type || "Routine Checkup";
+    let matched = "Routine Checkup";
+    for (const s of servicesList) {
+      if (sType.toLowerCase().includes(s.toLowerCase())) {
+        matched = s;
+        break;
+      }
+    }
+    serviceCounts[matched] += 1;
+    totalCountedServices += 1;
+  });
+
+  const serviceDistribution = servicesList.map(s => {
+    const percentage = totalCountedServices > 0 ? Math.round((serviceCounts[s] / totalCountedServices) * 100) : 0;
+    return {
+      name: s,
+      value: percentage,
+      color: serviceColors[s]
+    };
+  });
+
+  // Recent Activity Panel Feed (Calculated dynamically)
+  const recentActivities = appointments
+    .map(app => {
+      if (app.status === 'cancelled') {
+        return {
+          id: `act-cancel-${app.id}`,
+          type: "cancellation",
+          user: app.name,
+          detail: `cancelled ${app.service_type || "dental"} appointment`,
+          time: app.created_at ? new Date(app.created_at).toLocaleDateString() : "Recently",
+          icon: FileText,
+          color: "bg-rose-50 text-rose-600 border-rose-100"
+        };
+      } else {
+        return {
+          id: `act-book-${app.id}`,
+          type: "booking",
+          user: app.name,
+          detail: `booked ${app.service_type || "dental"} appointment for ${app.appointment_date} at ${app.appointment_time}`,
+          time: app.created_at ? new Date(app.created_at).toLocaleDateString() : "Recently",
+          icon: UserPlus,
+          color: "bg-emerald-50 text-emerald-600 border-emerald-100"
+        };
+      }
+    })
+    .sort((a, b) => b.id.localeCompare(a.id))
+    .slice(0, 3);
+
+  if (recentActivities.length === 0) {
+    recentActivities.push({
+      id: "act-empty",
+      type: "info",
+      user: "System",
+      detail: "ready to schedule appointments",
+      time: "Now",
+      icon: FileText,
+      color: "bg-violet-50 text-violet-600 border-violet-100"
+    });
+  }
 
   if (loading) {
     return (
@@ -218,7 +326,7 @@ export default function DashboardPage() {
           </div>
           <div className="flex-1 min-h-0 w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={MOCK_APPOINTMENTS_TREND}>
+              <AreaChart data={appointmentsTrend}>
                 <defs>
                   <linearGradient id="colorApps" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.2}/>
@@ -237,7 +345,7 @@ export default function DashboardPage() {
             </ResponsiveContainer>
           </div>
         </div>
-
+ 
         {/* Daily Call Volume Chart */}
         <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm flex flex-col h-[400px]">
           <div>
@@ -246,7 +354,7 @@ export default function DashboardPage() {
           </div>
           <div className="flex-1 min-h-0 mt-6 w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={MOCK_DAILY_CALLS}>
+              <BarChart data={dailyCalls}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                 <XAxis dataKey="name" stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} />
                 <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} />
@@ -270,7 +378,7 @@ export default function DashboardPage() {
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
-                    data={MOCK_SERVICE_DISTRIBUTION}
+                    data={serviceDistribution}
                     cx="50%"
                     cy="50%"
                     innerRadius={50}
@@ -278,7 +386,7 @@ export default function DashboardPage() {
                     paddingAngle={3}
                     dataKey="value"
                   >
-                    {MOCK_SERVICE_DISTRIBUTION.map((entry, index) => (
+                    {serviceDistribution.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
@@ -286,7 +394,7 @@ export default function DashboardPage() {
               </ResponsiveContainer>
             </div>
             <div className="space-y-2.5">
-              {MOCK_SERVICE_DISTRIBUTION.map((service, index) => (
+              {serviceDistribution.map((service, index) => (
                 <div key={index} className="flex items-center gap-2.5">
                   <span className="w-3.5 h-3.5 rounded-full shrink-0" style={{ backgroundColor: service.color }}></span>
                   <span className="text-xs font-semibold text-slate-700">{service.name}</span>

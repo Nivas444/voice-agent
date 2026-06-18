@@ -9,7 +9,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "AI Receptionist Platform - Aura Dental Care",
+  title: "AI Receptionist Platform - ABC Dental Clinic",
   description: "An AI-powered receptionist dashboard that answers calls, books appointments, and manages schedules automatically.",
 };
 
