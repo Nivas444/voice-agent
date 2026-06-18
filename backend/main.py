@@ -46,13 +46,29 @@ def home():
 @app.post("/api/appointments")
 async def create_appointment(data: Appointment):
     try:
+
+        # STEP 1: Create Google Calendar Event First
+        calendar_event = create_calendar_event(
+            customer_name=data.name,
+            appointment_date=data.appointment_date,
+            appointment_time=data.appointment_time
+        )
+
+        print("Calendar Event Response:", calendar_event)
+
+        calendar_event_id = calendar_event.get("id")
+
+        print("Calendar Event ID:", calendar_event_id)
+
+        # STEP 2: Save Everything Together
         appointment = {
             "name": data.name,
             "phone": data.phone,
             "appointment_date": data.appointment_date,
             "appointment_time": data.appointment_time,
             "service_type": data.service_type,
-            "status": "confirmed"
+            "status": "confirmed",
+            "calendar_event_id": calendar_event_id
         }
 
         result = (
@@ -62,36 +78,21 @@ async def create_appointment(data: Appointment):
             .execute()
         )
 
-        calendar_event_id = None
-        try:
-            calendar = create_calendar_event(
-                customer_name=data.name,
-                appointment_date=data.appointment_date,
-                appointment_time=data.appointment_time
-            )
-            calendar_event_id = calendar.get("id")
-        except Exception as calendar_err:
-            print(f"Error creating calendar event: {calendar_err}")
-            # Even if calendar fails, we continue but print/log the error
-
-        if calendar_event_id and result.data and len(result.data) > 0:
-            inserted_id = result.data[0]["id"]
-            supabase.table("appointments").update({
-                "calendar_event_id": calendar_event_id
-            }).eq("id", inserted_id).execute()
-            result.data[0]["calendar_event_id"] = calendar_event_id
-
         return {
             "success": True,
             "message": "Appointment booked successfully",
+            "calendar_event_id": calendar_event_id,
             "data": result.data
         }
+
     except Exception as e:
-        with open("error_log.txt", "a") as f:
-            f.write(f"\n--- ERROR at {datetime.now()} ---\n")
-            traceback.print_exc(file=f)
+        print("ERROR:", str(e))
         traceback.print_exc()
-        raise e
+
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error creating appointment: {str(e)}"
+        )
 
 
 @app.post("/api/check-availability", response_model=AvailabilityResponse)

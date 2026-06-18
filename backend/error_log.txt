@@ -64,3 +64,12 @@ Traceback (most recent call last):
   File "D:\SortyX Projects\voice-agent\calendar_service.py", line 96, in check_availability
     raise ValueError(f"Could not parse date/time: '{appointment_date} {appointment_time}' - Error: {e}")
 ValueError: Could not parse date/time: 'today 10 AM' - Error: Unknown string format: today 10 AM
+
+--- ERROR at 2026-06-18 20:50:41.915091 ---
+Traceback (most recent call last):
+  File "d:\SortyX Projects\voice-agent\backend\main.py", line 185, in cancel_appointment
+    }).eq("id", upcoming_appt["id"]).execute()
+                                     ~~~~~~~^^
+  File "C:\Users\nickn\AppData\Roaming\Python\Python314\site-packages\postgrest\_sync\request_builder.py", line 96, in execute
+    raise APIError(dict(json_obj))
+postgrest.exceptions.APIError: {'message': "Could not find the 'cancelled_at' column of 'appointments' in the schema cache", 'code': 'PGRST204', 'hint': None, 'details': None}
