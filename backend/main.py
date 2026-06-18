@@ -1,14 +1,16 @@
+import os
+import sys
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from backend.database import supabase
 import traceback
 from datetime import datetime
 
-# Import models
-from backend.models import Appointment, AvailabilityRequest, AvailabilityResponse
+# Add the backend directory to sys.path to resolve imports on Render
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-# Import calendar service
-from backend.calendar_service import create_calendar_event, check_availability
+from database import supabase
+from models import Appointment, AvailabilityRequest, AvailabilityResponse
+from calendar_service import create_calendar_event, check_availability
 
 app = FastAPI()
 
