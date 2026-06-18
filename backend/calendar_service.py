@@ -1,10 +1,12 @@
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 from datetime import datetime, timedelta, timezone
 import os
 from dateutil import parser
+
 
 SCOPES = ["https://www.googleapis.com/auth/calendar"]
 
@@ -80,7 +82,8 @@ def create_calendar_event(
 
 def check_availability(
     appointment_date: str,
-    appointment_time: str
+    appointment_time: str,
+    exclude_event_id: str = None
 ) -> dict:
     service = get_calendar_service()
     kolkata_tz = timezone(timedelta(hours=5, minutes=30))
@@ -117,6 +120,8 @@ def check_availability(
     # Helper function to check if a candidate slot overlaps with any calendar events
     def is_slot_available(slot_start, slot_end):
         for event in events_list:
+            if exclude_event_id and event.get("id") == exclude_event_id:
+                continue
             if event.get("transparency") == "transparent":
                 continue
             if event.get("status") == "cancelled":
@@ -175,3 +180,69 @@ def check_availability(
         "available": False,
         "suggestions": suggestions
     }
+
+def delete_calendar_event(event_id: str):
+    if not event_id:
+        print("No event ID provided for deletion, skipping Google Calendar delete.")
+        return
+    service = get_calendar_service()
+    try:
+        service.events().delete(calendarId="primary", eventId=event_id).execute()
+    except HttpError as err:
+        if err.resp.status == 404:
+            print(f"Calendar event {event_id} already deleted or not found.")
+        else:
+            print(f"Error deleting Google Calendar event {event_id}: {err}")
+            raise err
+    except Exception as e:
+        print(f"Unexpected error deleting Google Calendar event {event_id}: {e}")
+
+def update_calendar_event(event_id: str, new_date: str, new_time: str, customer_name: str = "Valued Customer") -> dict:
+    if not event_id:
+        print("No event ID provided for update, creating a new event instead...")
+        return create_calendar_event(customer_name, new_date, new_time)
+
+    service = get_calendar_service()
+    kolkata_tz = timezone(timedelta(hours=5, minutes=30))
+
+    try:
+        combined_str = f"{new_date} {new_time}"
+        start_dt = parser.parse(combined_str, dayfirst=True)
+        if start_dt.tzinfo is None:
+            start_dt = start_dt.replace(tzinfo=kolkata_tz)
+        else:
+            start_dt = start_dt.astimezone(kolkata_tz)
+    except Exception as e:
+        raise ValueError(f"Could not parse date/time: '{new_date} {new_time}' - Error: {e}")
+
+    end_dt = start_dt + timedelta(minutes=30)
+
+    try:
+        event = service.events().get(calendarId="primary", eventId=event_id).execute()
+        
+        event["start"] = {
+            "dateTime": start_dt.isoformat(),
+            "timeZone": "Asia/Kolkata"
+        }
+        event["end"] = {
+            "dateTime": end_dt.isoformat(),
+            "timeZone": "Asia/Kolkata"
+        }
+        
+        updated_event = service.events().update(
+            calendarId="primary",
+            eventId=event_id,
+            body=event
+        ).execute()
+        return updated_event
+    except HttpError as err:
+        if err.resp.status in (404, 410):
+            print(f"Calendar event {event_id} not found or gone, creating a new one...")
+            return create_calendar_event(customer_name, new_date, new_time)
+        else:
+            print(f"Error updating Google Calendar event {event_id}: {err}")
+            raise err
+    except Exception as e:
+        print(f"Unexpected error updating Google Calendar event {event_id}: {e}")
+        return create_calendar_event(customer_name, new_date, new_time)
+
