@@ -1,0 +1,66 @@
+
+--- ERROR at 2026-06-18 13:27:53.559817 ---
+Traceback (most recent call last):
+  File "d:\SortyX Projects\voice-agent\main.py", line 42, in create_appointment
+    calendar = create_calendar_event(
+  File "d:\SortyX Projects\voice-agent\google_calendar.py", line 48, in create_calendar_event
+    start_dt = datetime.strptime(
+  File "C:\Users\nickn\AppData\Local\Programs\Python\Python310\lib\_strptime.py", line 568, in _strptime_datetime
+    tt, fraction, gmtoff_fraction = _strptime(data_string, format)
+  File "C:\Users\nickn\AppData\Local\Programs\Python\Python310\lib\_strptime.py", line 349, in _strptime
+    raise ValueError("time data %r does not match format %r" %
+ValueError: time data '2026-06-18 10:00 AM' does not match format '%d-%m-%Y %I:%M %p'
+
+--- ERROR at 2026-06-18 13:39:23.275842 ---
+Traceback (most recent call last):
+  File "D:\SortyX Projects\voice-agent\main.py", line 42, in create_appointment
+    calendar = create_calendar_event(
+  File "D:\SortyX Projects\voice-agent\google_calendar.py", line 58, in create_calendar_event
+    raise ValueError(f"Could not parse date: {appointment_date}")
+ValueError: Could not parse date: June 19, 2026
+
+--- ERROR at 2026-06-18 13:44:56.727657 ---
+Traceback (most recent call last):
+  File "D:\SortyX Projects\voice-agent\main.py", line 42, in create_appointment
+    calendar = create_calendar_event(
+  File "D:\SortyX Projects\voice-agent\google_calendar.py", line 58, in create_calendar_event
+    raise ValueError(f"Could not parse date: {appointment_date}")
+ValueError: Could not parse date: 19 June 2026
+
+--- ERROR at 2026-06-18 15:41:58.810207 ---
+Traceback (most recent call last):
+  File "D:\SortyX Projects\voice-agent\calendar_service.py", line 90, in check_availability
+    start_dt = parser.parse(combined_str, dayfirst=True)
+  File "C:\Users\nickn\AppData\Local\Programs\Python\Python310\lib\site-packages\dateutil\parser\_parser.py", line 1368, in parse
+    return DEFAULTPARSER.parse(timestr, **kwargs)
+  File "C:\Users\nickn\AppData\Local\Programs\Python\Python310\lib\site-packages\dateutil\parser\_parser.py", line 643, in parse
+    raise ParserError("Unknown string format: %s", timestr)
+dateutil.parser._parser.ParserError: Unknown string format: 2024-06-20 any
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\SortyX Projects\voice-agent\main.py", line 61, in check_appointment_availability
+    result = check_availability(
+  File "D:\SortyX Projects\voice-agent\calendar_service.py", line 96, in check_availability
+    raise ValueError(f"Could not parse date/time: '{appointment_date} {appointment_time}' - Error: {e}")
+ValueError: Could not parse date/time: '2024-06-20 any' - Error: Unknown string format: 2024-06-20 any
+
+--- ERROR at 2026-06-18 16:10:25.099548 ---
+Traceback (most recent call last):
+  File "D:\SortyX Projects\voice-agent\calendar_service.py", line 90, in check_availability
+    start_dt = parser.parse(combined_str, dayfirst=True)
+  File "C:\Users\nickn\AppData\Local\Programs\Python\Python310\lib\site-packages\dateutil\parser\_parser.py", line 1368, in parse
+    return DEFAULTPARSER.parse(timestr, **kwargs)
+  File "C:\Users\nickn\AppData\Local\Programs\Python\Python310\lib\site-packages\dateutil\parser\_parser.py", line 643, in parse
+    raise ParserError("Unknown string format: %s", timestr)
+dateutil.parser._parser.ParserError: Unknown string format: today 10 AM
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\SortyX Projects\voice-agent\main.py", line 61, in check_appointment_availability
+    result = check_availability(
+  File "D:\SortyX Projects\voice-agent\calendar_service.py", line 96, in check_availability
+    raise ValueError(f"Could not parse date/time: '{appointment_date} {appointment_time}' - Error: {e}")
+ValueError: Could not parse date/time: 'today 10 AM' - Error: Unknown string format: today 10 AM

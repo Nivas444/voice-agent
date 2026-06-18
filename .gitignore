@@ -1,0 +1,8 @@
+backend/.env
+backend/token.json
+backend/credentials.json
+
+dashboard/node_modules
+dashboard/.next
+
+__pycache__
